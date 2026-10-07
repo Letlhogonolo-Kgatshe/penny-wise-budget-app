@@ -32,31 +32,22 @@ class HomeViewModel : ViewModel() {
             (goal?.incomeMaxGoal ?: 0.0) - spent
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
+    // XP and the Streak badge count every expense this month. recentExpenses
+    // is capped at 5 for the Home list, so it can't be used for these.
+    private val expenseCountThisMonth: StateFlow<Int> =
+        repo.getExpensesInRange(startOfCurrentMonth(), endOfCurrentMonth())
+            .map { it.size }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     val spendingStatus: StateFlow<SpendingStatus> =
-        combine(monthlyGoal, totalSpentThisMonth) { goal, spent ->
-            when {
-                goal == null || goal.spendingMaxGoal == 0.0 -> SpendingStatus.NO_GOAL
-                spent > goal.spendingMaxGoal                -> SpendingStatus.OVER_MAX
-                spent < goal.spendingMinGoal                -> SpendingStatus.UNDER_MIN
-                else                                         -> SpendingStatus.ON_TRACK
-            }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SpendingStatus.NO_GOAL)
+        combine(monthlyGoal, totalSpentThisMonth, ::spendingStatusFor)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SpendingStatus.NO_GOAL)
 
     val xpThisMonth: StateFlow<Int> =
-        recentExpenses.map { it.size * 10 }
+        expenseCountThisMonth.map(::xpFor)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     val badges: StateFlow<List<HomeBadge>> =
-        combine(monthlyGoal, totalSpentThisMonth, recentExpenses) { goal, spent, expenses ->
-            buildList {
-                if (expenses.isNotEmpty())        add(HomeBadge("🥾", "First Step"))
-                if (goal != null && spent <= goal.spendingMaxGoal && goal.spendingMaxGoal > 0)
-                    add(HomeBadge("🎯", "On Budget"))
-                if (goal != null && spent < goal.spendingMinGoal && goal.spendingMinGoal > 0)
-                    add(HomeBadge("💎", "Under Spend"))
-                if (expenses.size >= 7)           add(HomeBadge("🔥", "Streak"))
-                if (goal != null && goal.investingMinGoal > 0) add(HomeBadge("📈", "Investor"))
-                if (goal != null && goal.emergencyMinGoal > 0) add(HomeBadge("🛡️", "Safety Net"))
-            }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        combine(monthlyGoal, totalSpentThisMonth, expenseCountThisMonth, ::badgesFor)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }
