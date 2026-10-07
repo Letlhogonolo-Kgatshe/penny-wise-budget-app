@@ -4,7 +4,7 @@
 
 # Penny Wise: Personal Budgeting App for Android
 
-![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF) ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4) ![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-FFCA28) ![Coroutines](https://img.shields.io/badge/Kotlin-Flow%20%7C%20Coroutines-7F52FF)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF) ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4) ![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-FFCA28) ![Coroutines](https://img.shields.io/badge/Kotlin-Flow%20%7C%20Coroutines-7F52FF) [![CI](https://github.com/Letlhogonolo-Kgatshe/penny-wise-budget-app/actions/workflows/ci.yml/badge.svg)](https://github.com/Letlhogonolo-Kgatshe/penny-wise-budget-app/actions/workflows/ci.yml)
 
 An Android budgeting app for tracking **income, expenses, monthly goals and progress**. It turns spending data into charts, tips and achievements, with gamification to keep users logging.
 
@@ -76,6 +76,14 @@ goals/{uid}/monthly/{year_month}     min/max goals for income, spending, investi
 4. Open the project in Android Studio, sync Gradle and run.
 
 On sign-up the app writes `users/{uid}` with `name`, `email` and `uid` only. Passwords are handled entirely by Firebase Auth.
+
+## Tests
+
+The XP, badge and spending-status rules live in plain Kotlin functions (`viewmodel/Gamification.kt`) with JVM unit tests in `app/src/test`. CI runs them and builds a debug APK on every push, using a placeholder Firebase config.
+
+```bash
+./gradlew testDebugUnitTest
+```
 
 ## Credits
 
