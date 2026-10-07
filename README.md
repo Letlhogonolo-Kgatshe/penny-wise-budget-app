@@ -10,6 +10,8 @@ An Android budgeting app for tracking **income, expenses, monthly goals and prog
 
 ▶ **[Video demo: the app running on a phone](https://youtu.be/w4Cir029GtA)**
 
+<p align="center"><img src="docs/screenshot.jpg" alt="Penny Wise welcome screen with Login and Sign up" width="260"></p>
+
 ## Features
 
 | Screen | What it does |
